@@ -1,0 +1,101 @@
+body {
+	margin: 0;
+	overflow: hidden;
+	font-family: 'Montserrat', sans-serif;
+	background-color: #f8a2bd;
+	//background-color: black;
+}
+.state1 {
+//	background-color: #f8a2bd;
+}
+.state2 {
+//	background-color: #5898cc;
+}
+
+.tip {
+	color: rgba(255,255,255,0.5);
+	font-size: 10pt;
+	margin-top: 120px;
+}
+
+
+.card {
+	width: 300px;
+	height: 200px;
+	background-color: white;
+
+	text-align: center;
+	vertical-align: middle;
+	line-height: 200px;  /* the same as the div height */
+
+	/* 50% black box shadow */
+	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.panel {
+	margin:-100px 0 0 -150px; /* half the card width and height to center card*/
+	position: absolute;
+	top: 50%;
+	left: 50%;
+
+	-webkit-perspective: 600px;
+	-moz-perspective: 600px;
+	perspective: 600px;
+}
+
+/* -- make sure to declare a default for every property that you want animated -- */
+/* -- general styles, including Y axis rotation -- */
+.panel .front {
+	-webkit-transform-style: preserve-3d;
+		 -moz-transform-style: preserve-3d;
+					transform-style: preserve-3d;
+
+	-webkit-backface-visibility: hidden;
+		 -moz-backface-visibility: hidden;
+					backface-visibility: hidden;
+}
+
+.panel .back {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #dddddd;
+
+	-webkit-transform-style: preserve-3d;
+		 -moz-transform-style: preserve-3d;
+					transform-style: preserve-3d;
+
+	-webkit-backface-visibility: hidden;
+		 -moz-backface-visibility: hidden;
+					backface-visibility: hidden;
+}
+
+/* ------------------------- State 2 --------------------------- */
+
+.doors div {
+	width: 150px;
+	height: 200px;
+	background-color: white;
+	position: absolute;
+	float: left;
+}
+
+#doorLeft {
+	left: 0
+}
+
+#doorRight {
+	left: 151px;
+}
+
+/* ------------------------- State 3 --------------------------- */
+
+
+p {
+	width: 300px;
+	color: white;
+	font-weight: 400;
+	text-align: center;
+}
