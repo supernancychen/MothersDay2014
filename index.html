@@ -4,7 +4,6 @@
     <script src="js/jquery.min.js"></script> 
     <script src="js/leap.js"></script>
     <script src="js/leap-plugins-0.1.4.js"></script> 
-    <script src="js/freewall.js"></script> 
 
     <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
@@ -12,13 +11,11 @@
 
   </head>
   <body>
-    <div class="fadeMe"></div>
 
-
-    <!--audio controls autoplay>
+    <audio controls autoplay>
       <source src="riverflowsinyou.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
-    </audio-->
+    </audio>
 
     <div class="state1">
       <div class="panel">
@@ -26,7 +23,7 @@
             Flip hand over
         </div>
         <div class="back card">
-            To: My Mom
+            To: Mom
         </div>
       </div>
     </div>
@@ -35,10 +32,11 @@
     </div>
 
     <div class="state3">
+      <canvas id="c"></canvas>
       <p>Happy Mother's Day!</p>
     </div>
 
-
+    <script src="js/particles.js"></script> 
     <script src="js/main.js"></script> 
 
   </body>

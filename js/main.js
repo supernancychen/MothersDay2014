@@ -13,8 +13,8 @@ var imgLocs = [
 var msgs = [
 	"Mom, thank you for being my guardian angel since you gave me life.",
 	"Thank you for being my source of wisdom.",
-	"Thank you for selflessly and tirelessly holding our family together. We are blessed.",
-	"Despite the distance, you are my mother and my soul sister. I love you with all my heart."
+	"Thank you for selflessly and tirelessly holding our family together.",
+	"You are my mother and my soul sister. I love you. "
 ];
 
 
@@ -159,15 +159,26 @@ Leap.loop({enableGestures: true}, function(frame) {
 			}
 			break;
 		case 3:	
-		
+			if(frame.hands.length > 0) {
+			    for(var i=0; i<frame.hands.length; i++) {
+			    	var hand = frame.hands[i];
+			    	if(hand.grabStrength > 0.7) isFist = true;
+			    	else isFist = false;
+				}
+			}
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		    emitter.update();
 
 		default:
 	}
-}).use('handEntry')
+}).use('screenPosition', {scale: 1})
+.use('handEntry')
 	.on('handLost', function(hand){
     	if(state === 1) {	
     		if(Math.abs(hand.roll()) > 2)  resetState(2); 	// palm up: move to next state
     		else  resetState(1); 							// palm down: reset state 1
     	}
 	})
+
 });
