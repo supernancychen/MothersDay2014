@@ -1,5 +1,23 @@
 $(document).ready(function(){
-var state = 3;
+var state = 1;
+
+var photoNum = 0;
+var hasHand = false;
+var imgLocs = [
+	"img/1.jpg",
+	"img/2.jpg",
+	"img/3.jpg",
+	"img/4.jpg"
+];
+
+var msgs = [
+	"Mom, thank you for being my guardian angel since you gave me life.",
+	"Thank you for being my source of wisdom.",
+	"Thank you for selflessly and tirelessly holding our family together. We are blessed.",
+	"Despite the distance, you are my mother and my soul sister. I love you with all my heart."
+];
+
+
 resetState(state);
 
 function transformCSS (className, degree, axis) {
@@ -30,30 +48,25 @@ function cardFlip(hasHand, handType, rollRadian) {
 	}
 }
 
-var leftID, rightID;
-var leftEntryX;
-var rightEntryX;
-var leftDone;
-var rightDone;
-var leftDone2;
-var rightDone2;
+var sound_file_url = "riverflowsinyou.mp3";
 
 function resetState(stateNum) {
 	if(stateNum === 2) {
 		transformCSS(".front", 180, 'Y');
 		transformCSS(".back", 0, 'Y');
-		leftEntryX = rightEntryX = -999;
-		leftDone = rightDone = leftDone2 = rightDone2 = false;
+		photoNum = 0;
+		$(".panel").fadeTo("slow", 0);
 	}
-	state = stateNum;
+	else
 	$("body").children().hide();
+	state = stateNum;
 	$(".state"+stateNum).show();
 	if(stateNum === 3) {
 	}
 }
 
-var controllerOptions = {enableGestures: true};
-Leap.loop(controllerOptions, function(frame) {
+//var controllerOptions = {enableGestures: true};
+Leap.loop({enableGestures: true}, function(frame) {
 	// state machine
 	switch(state) {
 		case 1:
@@ -78,97 +91,83 @@ Leap.loop(controllerOptions, function(frame) {
 			else  cardFlip(false, "", 0);		// if there are no hands detected, reset the rotations to 0	
 		  break;
 		case 2:	
-			if(leftDone2 && rightDone2) resetState(3);
-			else {
-				// animate slide away. no more hand thing!		
-				if(leftDone) {
-					$('#doorLeft').css({
-						left: function( index, value ) {
-							if(parseFloat( value ) > -999) return parseFloat( value ) - 100;
-							else leftDone2 = true;
-						}
-					});
-				}
-				if(rightDone) {
-					$('#doorRight').css({
-						left: function( index, value ) {
-							if(parseFloat( value ) < 2000) return parseFloat( value ) + 100;
-							else rightDone2 = true;
-						}
-					});
-				}
+			if(frame.hands.length > 0) {
+				if (frame.gestures.length > 0) {
+				    frame.gestures.forEach(function(gesture) {
+				      if(gesture.type === "circle" && gesture.state === "stop") {
+				      	var clockwise = false;
+						var pointableID = gesture.pointableIds[0];
+						var direction = frame.pointable(pointableID).direction;
+						var dotProduct = Leap.vec3.dot(direction, gesture.normal);
 
-				if(!leftDone || !rightDone)	{
-					if(frame.hands.length > 0) {
-						frame.hands.forEach(function(hand) {
-							if(leftEntryX !== -999 && !leftDone) {
-								// move div relative to this number
-								if(hand.id === leftID) {
-									var delta = hand.palmPosition[0]-leftEntryX;
-									delta = (delta < 0) ? delta*2 : 0;
-									$('#doorLeft').css({
-										'left' : delta+"px"
-						        	});
-									if(delta < -150) leftDone = true;
-								}
-								
-							}
-							if(rightEntryX !== -999 && !rightDone) {
-								// move div relative to this number
-								if(hand.id === rightID) {
-									var delta = hand.palmPosition[0]-rightEntryX;
-									delta = (delta > 0) ? (150+delta*2) : 151;
-									$('#doorRight').css({
-										'left' : delta+"px"
-						        	});
-									if(delta > 300) rightDone = true;
-								}
-							}
-						});
+						if (dotProduct  >  0) clockwise = true;
+
+						if(!clockwise) {
+							resetState(2);
+							//break;
+						}
+				      }
+					});
+			  	}
+				// just got the hand! 
+				if(!hasHand) {
+					// get the current text div and fade it
+					if(photoNum !== 0) {
+						$(".slideshow > p").fadeTo( "slow", 0);
 					}
-					// Display Gesture object data
-					if (frame.gestures.length > 0) {
-						for (var i = 0; i < frame.gestures.length; i++) {
-							var gesture = frame.gestures[i];
-							if(gesture.type == "swipe") {
-								//Classify swipe as either horizontal or vertical
-								var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
-								//Classify as right-left or up-down
-								if(isHorizontal) {
-									if(gesture.direction[0] > 0)  rightDone = true;
-									else  leftDone = true;
-								}
-						   }
-						 }
+
+					// go to the next set of things
+					photoNum++;
+					if(photoNum > imgLocs.length) {
+						resetState(3);
+						break;
 					}
+
+					// get the next image
+					$(".slideshow").append("<img src='img/"+photoNum+".jpg' />");
+
+					// show the next image but set its opacity to 0
+					$(".slideshow > img").css({"opacity": 0});
+					
+					hasHand = true;
+
+				} else {
+					// map img's opacity to the hand's proximity to the center of Leap
+					var hand = frame.hands[0];
+					var x = hand.palmPosition[0];
+					var z = hand.palmPosition[2];
+					var distance = Math.sqrt(x*x + z*z);
+					// distance goes from 0 to 200, fade goes from 1 to 0
+					var fade = 1-distance/150;
+					$(".slideshow > img").fadeTo( 0, fade);
+				}
+			}
+			else {
+				// just lost the hand!
+				if(hasHand) {
+					// hide photo
+					$(".slideshow").empty();
+
+					if(photoNum === 0) photoNum = 1;
+					// fade in text
+					$(".slideshow").append("<p>"+msgs[photoNum-1]+"</>");
+					$(".slideshow > p").css({"opacity": 0});
+					$(".slideshow > p").fadeTo( "slow", 1);
+
+					hasHand = false;
 				}
 			}
 			break;
+		case 3:	
+		
+
 		default:
 	}
 }).use('handEntry')
-	.on('handFound', function(hand){
-		if(state === 2) {
-			if(hand.type === "left" && leftEntryX === -999) {
-				leftEntryX = hand.palmPosition[0];
-				leftID = hand.id;
-			}
-			else if(hand.type === "right" && rightEntryX === -999) {
-				rightEntryX = hand.palmPosition[0];
-				rightID = hand.id;
-			}
-		}
-	})
 	.on('handLost', function(hand){
     	if(state === 1) {	
     		if(Math.abs(hand.roll()) > 2)  resetState(2); 	// palm up: move to next state
     		else  resetState(1); 							// palm down: reset state 1
-    	}
-    	else if(state === 2) {
-    		if(hand.id === leftID)
-	    		leftEntryX = -999;
-	    	else if(hand.id === rightID)
-	    		rightEntryX = -999;
     	}
 	})
 });
